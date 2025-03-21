@@ -36,20 +36,32 @@ class PersonController extends Controller
             'date_of_birth' => 'nullable|date',
         ]);
 
+        // Formatage
         $validated['created_by'] = Auth::id();
+
+        // Prénom : Première lettre majuscule, reste minuscule
         $validated['first_name'] = ucfirst(strtolower($validated['first_name']));
+
+        // Nom : tout en majuscules
         $validated['last_name'] = strtoupper($validated['last_name']);
+
+        // Nom de naissance : majuscule ou = last_name si vide
         $validated['birth_name'] = strtoupper($validated['birth_name'] ?? $validated['last_name']);
 
+        // Prénoms composés : capitaliser chaque prénom
         if (!empty($validated['middle_names'])) {
             $validated['middle_names'] = collect(explode(',', $validated['middle_names']))
                 ->map(fn($name) => ucfirst(strtolower(trim($name))))
                 ->implode(', ');
+        } else {
+            $validated['middle_names'] = null;
         }
 
+        // Date : déjà validée par Laravel, si vide reste null
         Person::create($validated);
 
         return redirect()->route('people.index')->with('success', 'Personne ajoutée avec succès.');
     }
+
 }
 
