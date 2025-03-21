@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PersonController;
+use App\Models\Person;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,3 +27,19 @@ Route::get('/people/{id}', [PersonController::class, 'show'])->name('people.show
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/test-degre', function () {
+    DB::enableQueryLog();
+    $timestart = microtime(true);
+
+    $person = Person::findOrFail(84);
+    $degree = $person->getDegreeWith(1265);
+
+    $elapsed = microtime(true) - $timestart;
+    $queries = DB::getQueryLog();
+
+    dd([
+        'degree' => $degree,
+        'time' => $elapsed,
+        'nb_queries' => count($queries),
+    ]);
+});
